@@ -1,0 +1,42 @@
+table Dim_Country
+	lineageTag: eb5add00-6262-4b5e-829d-fd3d470aa77c
+
+	column CountryID
+		dataType: string
+		lineageTag: b8c23716-4eb4-4c84-bc3f-d3dc5b620c59
+		summarizeBy: none
+		sourceColumn: CountryID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 6ef3ec8b-bc06-4eeb-8fb6-ed62c1040870
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: ad5b0e41-aba4-4ec3-abb4-819988b2bfd6
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Country = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Discover20\OneDrive\SkillEra\19\Carrefour_Sales_Analytics_4Page\Dim_Country.csv"),[Delimiter=",", Columns=3, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"CountryID", type text}, {"Country", type text}, {"Region", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,29 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["Dim_Category","Dim_Country","Dim_Customer","Dim_Date","Dim_Location","Dim_Product","Dim_SubCategory","Fact_Sales"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Dim_Category
+ref table Dim_Country
+ref table Dim_Customer
+ref table DateTableTemplate_fbe4839d-5579-4de1-9769-833137c6f592
+ref table LocalDateTable_f79d3c6e-2d61-4abe-8b79-774ee32a4505
+ref table Dim_Date
+ref table Dim_Location
+ref table Dim_Product
+ref table Dim_SubCategory
+ref table Fact_Sales
+ref table LocalDateTable_1cceafb5-0109-4694-81fe-4b02a38042dc
+
+ref cultureInfo en-US
+

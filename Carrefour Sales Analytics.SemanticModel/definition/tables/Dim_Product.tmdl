@@ -1,0 +1,61 @@
+table Dim_Product
+	lineageTag: 68caafda-8dfc-4054-b5f3-384ab233dbe2
+
+	column ProductID
+		dataType: string
+		lineageTag: 96373655-97dd-41c0-8f04-1e2eacfb4b58
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductName
+		dataType: string
+		lineageTag: 472b139c-c0b0-43cc-9310-682a8353a64f
+		summarizeBy: none
+		sourceColumn: ProductName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubCategoryID
+		dataType: string
+		lineageTag: 484d21f3-1d3e-4d92-9c6b-70d0751a8a79
+		summarizeBy: none
+		sourceColumn: SubCategoryID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Price
+		dataType: double
+		lineageTag: adc8bcbc-320e-486e-9400-de8cb19615ee
+		summarizeBy: sum
+		sourceColumn: Price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Cost
+		dataType: double
+		lineageTag: d65dc8e2-9611-4fc9-af1f-4a998d1e031e
+		summarizeBy: sum
+		sourceColumn: Cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Dim_Product = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Discover20\OneDrive\SkillEra\19\Carrefour_Sales_Analytics_4Page\Dim_Product.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ProductID", type text}, {"ProductName", type text}, {"SubCategoryID", type text}, {"Price", type number}, {"Cost", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

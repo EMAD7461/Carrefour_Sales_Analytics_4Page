@@ -1,0 +1,50 @@
+table Dim_Location
+	lineageTag: 25c9b0f8-67ef-411b-9d4c-a940411ae9a9
+
+	column LocationID
+		dataType: string
+		lineageTag: db9230d5-6f08-4ff2-918c-5f90323ae6db
+		summarizeBy: none
+		sourceColumn: LocationID
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 0a9eb609-bb8f-485b-a28e-4befe42bcb94
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 6c361ad3-5130-4815-918b-8fb85719d9c9
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column CountryID
+		dataType: string
+		lineageTag: 5fbfcd55-57fb-4910-a96b-3848f11fd634
+		summarizeBy: none
+		sourceColumn: CountryID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Location = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Discover20\OneDrive\SkillEra\19\Carrefour_Sales_Analytics_4Page\Dim_Location.csv"),[Delimiter=",", Columns=4, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"LocationID", type text}, {"City", type text}, {"State", type text}, {"CountryID", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,195 @@
+table Fact_Sales
+	lineageTag: c8dc3d9a-1c81-48c6-96dc-20e60b5097e9
+
+	/// Gross sales from TotalAmount; the source reconciles to Quantity × UnitPrice.
+	measure 'Gross Sales Before Discount & Tax' = SUM ( Fact_Sales[TotalAmount] )
+		formatString: #,0.00 "EGP"
+		lineageTag: 9a2c5b24b38c9cc13d48d8850d302d61
+
+	measure 'Units Sold' = SUM ( Fact_Sales[Quantity] )
+		formatString: #,0
+		lineageTag: 4ff20b42882dd79fb2a7e1d931d9acf0
+
+	measure 'Distinct Invoices' = DISTINCTCOUNT ( Fact_Sales[InvoiceNo] )
+		formatString: #,0
+		lineageTag: ac7db8ea9fd55ef93829dc6c3a3eda48
+
+	measure 'Customers with Sales' = DISTINCTCOUNTNOBLANK ( Fact_Sales[CustomerID] )
+		formatString: #,0
+		lineageTag: 8813bca18b6224b6e1ee86a4dd398eed
+
+	measure 'Products Sold' = DISTINCTCOUNTNOBLANK ( Fact_Sales[ProductID] )
+		formatString: #,0
+		lineageTag: 83dab8f457e9d4fb1775d574f0c933ac
+
+	measure 'Average Invoice Value' = DIVIDE ( [Gross Sales Before Discount & Tax], [Distinct Invoices] )
+		formatString: #,0.00 "EGP"
+		lineageTag: 9d034f32d237afd511b5ebd1fff15b2d
+
+	/// Excludes rows without a customer ID; demographics and locations cannot be assigned to those rows.
+	measure 'Customer-Linked Gross Sales' = CALCULATE ( [Gross Sales Before Discount & Tax], FILTER ( Fact_Sales, NOT ISBLANK ( Fact_Sales[CustomerID] ) ) )
+		formatString: #,0.00 "EGP"
+		lineageTag: 1dda282a72878758d9d4e70f2c078627
+
+	measure 'Customer-Linked Invoices' = CALCULATE ( [Distinct Invoices], FILTER ( Fact_Sales, NOT ISBLANK ( Fact_Sales[CustomerID] ) ) )
+		formatString: #,0
+		lineageTag: 09445fc8914b2f4642e317d556ead258
+
+	measure 'Customer-Linked Average Invoice Value' = DIVIDE ( [Customer-Linked Gross Sales], [Customer-Linked Invoices] )
+		formatString: #,0.00 "EGP"
+		lineageTag: 4f7771ff31377560757a82c7acae4325
+
+	measure 'Customer-Linked Units Sold' = CALCULATE ( [Units Sold], FILTER ( Fact_Sales, NOT ISBLANK ( Fact_Sales[CustomerID] ) ) )
+		formatString: #,0
+		lineageTag: 6a3a37770886cdea1326400f363c8624
+
+	/// Estimated unit cost times quantity, on matched product keys only.
+	measure 'Estimated Total Cost (Matched Product IDs)' = SUMX ( FILTER ( Fact_Sales, NOT ISBLANK ( RELATED ( Dim_Product[Cost] ) ) ), Fact_Sales[Quantity] * RELATED ( Dim_Product[Cost] ) )
+		formatString: #,0.00 "EGP"
+		lineageTag: 5286b108794e532a9c10ef2602cc0f3b
+
+	measure 'Gross Sales (Matched Product IDs)' = CALCULATE ( [Gross Sales Before Discount & Tax], FILTER ( Fact_Sales, NOT ISBLANK ( RELATED ( Dim_Product[Cost] ) ) ) )
+		formatString: #,0.00 "EGP"
+		lineageTag: c75350aa0030b3173e37d6220417a82c
+
+	/// Estimated gross profit on matched product-cost sales only; not company net profit.
+	measure 'Estimated Gross Profit (Matched Product IDs)' = [Gross Sales (Matched Product IDs)] - [Estimated Total Cost (Matched Product IDs)]
+		formatString: #,0.00 "EGP"
+		lineageTag: f1c0f7a58ed657546dd6be2eb243239b
+
+	/// Estimated gross profit margin on matched product-cost sales only.
+	measure 'Estimated Gross Profit Margin (Matched Product IDs)' = DIVIDE ( [Estimated Gross Profit (Matched Product IDs)], [Gross Sales (Matched Product IDs)] )
+		formatString: 0.0%
+		lineageTag: e18307644b74d00c11c622e86a52cabe
+
+	measure 'Top 10 Product Gross Sales' = IF ( RANKX ( ALLSELECTED ( Dim_Product[ProductName] ), [Gross Sales Before Discount & Tax], , DESC, DENSE ) <= 10, [Gross Sales Before Discount & Tax] )
+		formatString: #,0.00 "EGP"
+		lineageTag: 4131e620035bb1066e43cdf607664e19
+
+	measure 'Top 10 Product Estimated Gross Profit' = IF ( RANKX ( ALLSELECTED ( Dim_Product[ProductName] ), [Estimated Gross Profit (Matched Product IDs)], , DESC, DENSE ) <= 10, [Estimated Gross Profit (Matched Product IDs)] )
+		formatString: #,0.00 "EGP"
+		lineageTag: 42c108ee2d9831a5d32f2539fe222d02
+
+	column InvoiceNo
+		dataType: string
+		lineageTag: 3b5c0396-ade2-4ed8-a178-ca52d8777956
+		summarizeBy: none
+		sourceColumn: InvoiceNo
+
+		annotation SummarizationSetBy = Automatic
+
+	column InvoiceDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b0f71d31-b44d-4a84-8d78-39f0bb00d8da
+		summarizeBy: none
+		sourceColumn: InvoiceDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CustomerID
+		dataType: string
+		lineageTag: 158f51c0-32f3-4fdd-8dc3-3cde631e944d
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductID
+		dataType: string
+		lineageTag: 0b91892a-355f-4592-a555-30cea6370111
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 28367e65-0e27-4b8a-9214-25d269e5c586
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		dataType: double
+		lineageTag: b336a641-320f-4a15-b2f2-feee83fd31d3
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TotalAmount
+		dataType: double
+		lineageTag: a8cdbaf2-0669-46d6-b1fa-bae6c10e74c0
+		summarizeBy: sum
+		sourceColumn: TotalAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Month
+		dataType: int64
+		formatString: 0
+		lineageTag: 79ae2d42-333b-498b-b4de-2a19924bfc2c
+		summarizeBy: sum
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column Day
+		dataType: int64
+		formatString: 0
+		lineageTag: 31d7aa3f-df94-4555-9961-7c0ec3d45869
+		summarizeBy: sum
+		sourceColumn: Day
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 516a6df6-2a10-4b3f-904c-fc5caeb9a0e1
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Month' = FORMAT ( Fact_Sales[InvoiceDate], "yyyy-MM" )
+		dataType: string
+		lineageTag: f6d15a94edc42260b037b34221064ac5
+		summarizeBy: none
+		sortByColumn: 'Year Month Sort'
+
+	column 'Year Month Sort' = YEAR ( Fact_Sales[InvoiceDate] ) * 100 + MONTH ( Fact_Sales[InvoiceDate] )
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7e70285484b274999fcbd7786f434c43
+		summarizeBy: none
+
+	partition Fact_Sales = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Discover20\OneDrive\SkillEra\19\Carrefour_Sales_Analytics_4Page\Fact_Sales.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"InvoiceNo", type text}, {"InvoiceDate", type date}, {"CustomerID", type text}, {"ProductID", type text}, {"Quantity", Int64.Type}, {"UnitPrice", type number}, {"TotalAmount", type number}}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Changed Type", "InvoiceDate", "InvoiceDate - Copy"),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Duplicated Column",{"InvoiceNo", "InvoiceDate", "InvoiceDate - Copy", "CustomerID", "ProductID", "Quantity", "UnitPrice", "TotalAmount"}),
+				    #"Split Column by Delimiter" = Table.SplitColumn(Table.TransformColumnTypes(#"Reordered Columns", {{"InvoiceDate - Copy", type text}}, "en-US"), "InvoiceDate - Copy", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"InvoiceDate - Copy.1", "InvoiceDate - Copy.2", "InvoiceDate - Copy.3"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Split Column by Delimiter",{{"InvoiceDate - Copy.1", Int64.Type}, {"InvoiceDate - Copy.2", Int64.Type}, {"InvoiceDate - Copy.3", Int64.Type}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type1",{{"InvoiceDate - Copy.2", "Day"}, {"InvoiceDate - Copy.1", "Month"}, {"InvoiceDate - Copy.3", "Year"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

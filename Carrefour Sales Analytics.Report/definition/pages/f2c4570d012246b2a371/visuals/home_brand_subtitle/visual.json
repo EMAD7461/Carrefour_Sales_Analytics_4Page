@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "home_subtitle",
+  "position": {
+    "x": 800,
+    "y": 312,
+    "z": 3000,
+    "height": 62,
+    "width": 860,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Clear insights across sales, products, customers and regions.",
+                    "textStyle": {
+                      "fontSize": "19px",
+                      "color": "#C4D3E5",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ],
+                "horizontalTextAlignment": "left"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

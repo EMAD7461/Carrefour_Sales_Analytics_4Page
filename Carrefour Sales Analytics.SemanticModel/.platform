@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "‪‪Task 8 - Power BI for Data Analytics"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "ad5ea98a-c89a-479b-bb89-9fbbe1b37261"
+  }
+}

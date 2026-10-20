@@ -1,0 +1,42 @@
+table Dim_SubCategory
+	lineageTag: fa2e1f29-eb0b-4be0-8f19-3f85b70274ba
+
+	column SubCategoryID
+		dataType: string
+		lineageTag: 7d0d257e-ad92-4245-b9f9-e3c9c7c4d4e6
+		summarizeBy: none
+		sourceColumn: SubCategoryID
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubCategoryName
+		dataType: string
+		lineageTag: 7d9a0e1b-ebb1-4c83-bd25-820e029719c5
+		summarizeBy: none
+		sourceColumn: SubCategoryName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CategoryID
+		dataType: string
+		lineageTag: bebfd5cf-e42d-496f-8515-06111ea4d1e0
+		summarizeBy: none
+		sourceColumn: CategoryID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_SubCategory = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Discover20\OneDrive\SkillEra\19\Carrefour_Sales_Analytics_4Page\Dim_SubCategory.csv"),[Delimiter=",", Columns=3, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"SubCategoryID", type text}, {"SubCategoryName", type text}, {"CategoryID", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

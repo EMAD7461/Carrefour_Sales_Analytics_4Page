@@ -1,0 +1,9 @@
+# Power BI local workspace state and cached model data
+**/.pbi/
+
+# Windows/editor temporary files
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak
+~$*

@@ -1,0 +1,90 @@
+table Dim_Date
+	lineageTag: 1ba72d31-69cb-4eb2-abcf-65febbbc3553
+
+	column DateID
+		dataType: string
+		lineageTag: 409db167-aae0-4d2d-b194-8e3d5c1cb275
+		summarizeBy: none
+		sourceColumn: DateID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 81d54c74-c20a-4476-a258-3b7f1dd20078
+		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: e8475a47-71ee-4cc4-992c-0a578a51d440
+			defaultHierarchy: LocalDateTable_1cceafb5-0109-4694-81fe-4b02a38042dc.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Day
+		dataType: int64
+		formatString: 0
+		lineageTag: ec157437-1dbc-410e-8a30-0bb610247250
+		summarizeBy: sum
+		sourceColumn: Day
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: int64
+		formatString: 0
+		lineageTag: b4e6525b-5988-4e6c-a140-2fb155590580
+		summarizeBy: sum
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: e4ef088f-1b84-499f-b004-99dadc7bdc62
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: d6da3c05-d7db-4533-903a-f519536494af
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Date = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Discover20\OneDrive\SkillEra\19\Carrefour_Sales_Analytics_4Page\Dim_Date.csv"),[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"DateID", type text}, {"Date", type date}, {"Day", Int64.Type}, {"Month", Int64.Type}, {"Quarter", type text}, {"Year", Int64.Type}}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Changed Type", "Date", "Date - Copy"),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Duplicated Column",{"DateID", "Date - Copy", "Date", "Day", "Month", "Quarter", "Year"}),
+				    #"Inserted Year" = Table.AddColumn(#"Reordered Columns", "Year.1", each Date.Year([#"Date - Copy"]), Int64.Type),
+				    #"Inserted Month" = Table.AddColumn(#"Inserted Year", "Month.1", each Date.Month([#"Date - Copy"]), Int64.Type),
+				    #"Inserted Day" = Table.AddColumn(#"Inserted Month", "Day.1", each Date.Day([Date]), Int64.Type),
+				    #"Reordered Columns1" = Table.ReorderColumns(#"Inserted Day",{"DateID", "Date - Copy", "Date", "Month.1", "Day.1", "Year.1", "Day", "Month", "Quarter", "Year"}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Reordered Columns1",{"Day"}),
+				    #"Reordered Columns2" = Table.ReorderColumns(#"Removed Columns",{"DateID", "Date - Copy", "Date", "Day.1", "Month.1", "Year.1", "Month", "Quarter", "Year"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Reordered Columns2",{{"Day.1", "Day"}}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Renamed Columns",{"Year.1"}),
+				    #"Reordered Columns3" = Table.ReorderColumns(#"Removed Columns1",{"DateID", "Date - Copy", "Date", "Day", "Month", "Month.1", "Quarter", "Year"}),
+				    #"Removed Columns2" = Table.RemoveColumns(#"Reordered Columns3",{"Month.1"}),
+				    #"Reordered Columns4" = Table.ReorderColumns(#"Removed Columns2",{"DateID", "Date - Copy", "Date", "Day", "Month", "Year", "Quarter"}),
+				    #"Removed Columns3" = Table.RemoveColumns(#"Reordered Columns4",{"Date - Copy"})
+				in
+				    #"Removed Columns3"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

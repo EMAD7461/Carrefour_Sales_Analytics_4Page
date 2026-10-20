@@ -1,0 +1,87 @@
+table Dim_Customer
+	lineageTag: 30c4797b-eb36-4e79-ac90-830efdbf78ee
+
+	column CustomerID
+		dataType: string
+		lineageTag: 7c4c9bb1-08f6-439b-acb1-4448130cfc9d
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Name
+		dataType: string
+		lineageTag: f524f57f-0cc9-4fe6-b976-753b3fea2978
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gender
+		dataType: string
+		lineageTag: 340d497d-803b-41e9-90ef-46a78c931a60
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column Age
+		dataType: int64
+		formatString: 0
+		lineageTag: bed54ee0-9eb9-43e1-bae2-af377c7f714c
+		summarizeBy: sum
+		sourceColumn: Age
+
+		annotation SummarizationSetBy = Automatic
+
+	column LocationID
+		dataType: string
+		lineageTag: 93906788-03b2-407b-9409-88833859fd33
+		summarizeBy: none
+		sourceColumn: LocationID
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegistrationDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 1bbd645b-f7c1-40b4-9d67-8562a2044978
+		summarizeBy: none
+		sourceColumn: RegistrationDate
+
+		variation Variation
+			isDefault
+			relationship: 47a173dd-122a-4cbe-adb6-abff22bd2a36
+			defaultHierarchy: LocalDateTable_f79d3c6e-2d61-4abe-8b79-774ee32a4505.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Age Group' = SWITCH ( TRUE (), ISBLANK ( Dim_Customer[Age] ), "Unknown", Dim_Customer[Age] < 25, "18–24", Dim_Customer[Age] < 35, "25–34", Dim_Customer[Age] < 45, "35–44", Dim_Customer[Age] < 55, "45–54", "55+" )
+		dataType: string
+		lineageTag: b045f35e6f0281169ccd44b88b2db4e9
+		summarizeBy: none
+		sortByColumn: 'Age Group Sort'
+
+	column 'Age Group Sort' = SWITCH ( TRUE (), ISBLANK ( Dim_Customer[Age] ), 99, Dim_Customer[Age] < 25, 1, Dim_Customer[Age] < 35, 2, Dim_Customer[Age] < 45, 3, Dim_Customer[Age] < 55, 4, 5 )
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a10cb2577d4599b8e2163caf391d61e0
+		summarizeBy: none
+
+	partition Dim_Customer = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Discover20\OneDrive\SkillEra\19\Carrefour_Sales_Analytics_4Page\Dim_Customer.csv"),[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"CustomerID", type text}, {"Name", type text}, {"Gender", type text}, {"Age", Int64.Type}, {"LocationID", type text}, {"RegistrationDate", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,38 @@
+relationship 47a173dd-122a-4cbe-adb6-abff22bd2a36
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Dim_Customer.RegistrationDate
+	toColumn: LocalDateTable_f79d3c6e-2d61-4abe-8b79-774ee32a4505.Date
+
+relationship AutoDetected_bdebce19-342c-4f9f-94d1-31e423e0e76e
+	fromColumn: Dim_SubCategory.CategoryID
+	toColumn: Dim_Category.CategoryID
+
+relationship AutoDetected_c72b674e-7a5e-4e60-9e39-33ef5123e888
+	fromColumn: Dim_Location.CountryID
+	toColumn: Dim_Country.CountryID
+
+relationship AutoDetected_6ce57ee2-794f-43f6-a475-569bc7b5339c
+	fromColumn: Dim_Customer.LocationID
+	toColumn: Dim_Location.LocationID
+
+relationship AutoDetected_4e3df126-a54e-4e87-b5dc-66cb2c012b64
+	fromColumn: Dim_Product.SubCategoryID
+	toColumn: Dim_SubCategory.SubCategoryID
+
+relationship 5daaf3e9-66f2-afd4-3183-15a6de26bfc4
+	fromColumn: Fact_Sales.CustomerID
+	toColumn: Dim_Customer.CustomerID
+
+relationship 869955d0-44fa-fb8d-a9df-1df6f08a477c
+	fromColumn: Fact_Sales.ProductID
+	toColumn: Dim_Product.ProductID
+
+relationship e8475a47-71ee-4cc4-992c-0a578a51d440
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Dim_Date.Date
+	toColumn: LocalDateTable_1cceafb5-0109-4694-81fe-4b02a38042dc.Date
+
+relationship 107957a0-a177-a752-3eda-1db9be5aee15
+	fromColumn: Fact_Sales.InvoiceDate
+	toColumn: Dim_Date.Date
+
